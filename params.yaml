@@ -1,0 +1,13 @@
+featurize:
+  max_number: 1000 
+
+process:
+  threshold: 0
+  filter_by: 0.95
+
+train:
+  seed: 123
+  split: 0.1
+  n_est: 100
+  method: "predict_proba"
+
