@@ -1,4 +1,10 @@
 notebook
 rise
 dvc[gc]
-
+pandas
+rdkit
+numpy
+molvs
+rdkit
+pubchempy
+scikit-learn
