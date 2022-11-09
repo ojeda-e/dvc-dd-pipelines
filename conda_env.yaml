@@ -9,7 +9,7 @@ dependencies:
   - jupyter
   - rise
   - dvc-gs
-  - numpy
+  - numpy==1.22.0
   - pandas
   - molvs
   - rdkit
