@@ -17,21 +17,6 @@ if len(sys.argv) != 3:
     sys.stderr.write("\tpython process.py data-file-in  data-file-out \n")
     sys.exit(1)
 
-def remove_zeros(df, threshold: int):
-    """
-    Remove features that matches the threshold provided.
-    """
-    null_features=[]
-    for x in range(0, len(df.columns)):
-        col=df.columns[x]
-        N_zeroes=len(df.loc[[i == 0.0 for i in df[col]]])
-        if N_zeroes > threshold:
-            null_features.append(col)
-
-    df=df.drop(null_features, axis=1)
-    return df
-
-
 def filter_correlation(df, filter_by: float = 0.9):
     """
     Filters correlated features in a DataFrame.
@@ -57,10 +42,27 @@ def filter_correlation(df, filter_by: float = 0.9):
             df=df.drop(colx, axis=1)
     return df
 
+def remove_zeros(df, threshold):
+    """
+    Remove features that matches the threshold provided.
+    """
+    null_features = []
+    for x in range(0, len(df.columns)):
+        col = df.columns[x]
+        N_zeroes = len(df.loc[[i == 0.0 for i in df[col]]]) #Number of zeroes in a column
+        if N_zeroes > threshold:  
+            null_features.append(col)
+    print("The number of features that will be removed is {}".format(len(null_features)))
+    #Drop features with many zeroes:
+    df = df.drop(null_features, axis=1)
+    return df
+
 os.makedirs(os.path.join("data", "processed"), exist_ok=True)
 
 df_input = pd.read_csv(input)
-descriptors_df = remove_zeros(df_input, threshold)
-prepared_df = filter_correlation(descriptors_df, filter_by=filter)
-prepared_df.to_csv(output)
-print('The shape of the filtered dataframe is: ', prepared_df.shape, '\n')
+df_input = remove_zeros(df_input, threshold)
+df = filter_correlation(df_input, filter)
+print(type(df))
+df.to_csv(f"{output}")
+print(f'The shape of the filtered dataframe is {df.shape}.')
+print("Processing stage finished!")

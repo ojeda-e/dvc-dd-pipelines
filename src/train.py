@@ -10,12 +10,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.metrics import classification_report as clf_rep
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_predict
 import yaml
 
 params = yaml.safe_load(open("params.yaml"))["train"]
-params2 = yaml.safe_load(open("params.yaml"))["featurize"]
 
-max_number = params2["max_number"]
+
+
 
 if len(sys.argv) != 3:
     sys.stderr.write("Arguments error. Usage:\n")
@@ -28,50 +29,43 @@ output_model = sys.argv[2]
 split = params["split"]
 seed = 123  # random.seed(params["seed"])
 n_est = params["n_est"]
-method = params["method"]
 
 
-def get_pipeline(seed, n_est, clf_model):
-    """
-    Data scaling and estimation within a pipeline
-    """
-
-    rf_pipeline = Pipeline([("std_scaler", StandardScaler()),
-                            ("rf_clf", clf_model)])
-
-    return rf_pipeline
+df_input = pd.read_csv(input)
+labels = pd.read_csv("./data/initial_data.csv")["class"]
 
 
-def get_metrics(pipeline, prediction):
-    """
-    Function to get metrics from pipeline and predicition
-    """
-    return cm(pipeline, prediction)
+X_train, X_test, y_train, y_test = train_test_split(df_input, #Filtered Descriptors 
+                                                    labels,  #Vector containing each compound's class
+                                                    test_size= 0.1, 
+                                                    shuffle= True, 
+                                                    random_state=123, 
+                                                    stratify= labels
+                                                   )
 
+print(f'Blockers - training set: {pd.value_counts(y_train)[1]} compounds')
+print(f'Non-blockers - training set: {pd.value_counts(y_train)[0]} compounds')
+print(f'Total compounds - training set: {len(y_train)}')
+print(f'Blockers - test set: {pd.value_counts(y_test)[1]} compounds')
+print(f'Non-blockers - test set: {pd.value_counts(y_test)[0]} compounds')
+print(f'Total compounds - test set: {(len(y_test))}')
 
-def get_report(train, prediction):
-    print(clf_rep(train, prediction))
+clf = RandomForestClassifier(n_estimators=100, max_depth=4, random_state=123)
 
-
-df = pd.read_csv(input)
-labels = pd.read_csv("./data/initial_data.csv")["label"][:max_number]
-X_train, X_test, y_train, y_test = train_test_split(df,  # Filtered Descriptors
-                                                    labels,  # Vector containing each compound's class
-                                                    test_size=split,
-                                                    shuffle=True,
-                                                    random_state=seed,
-                                                    stratify=labels
-                                                    )
-clf = RandomForestClassifier(
-    n_estimators=n_est, max_depth=4, random_state=seed)
-
-pipe = get_pipeline(seed, n_est, clf)
-
-clf.fit(X_train, y_train)
+rf_pipeline = Pipeline([("st_scaler", StandardScaler()),
+                        ("rf_clf", RandomForestClassifier(n_estimators=100, max_depth=4, random_state=123))])
 
 
 os.makedirs(os.path.join("models"), exist_ok=True)
 
-
 with open(output_model, "wb") as fd:
     pickle.dump(clf, fd)
+
+
+y_predict = cross_val_predict(rf_pipeline,  # pipeline containing the transformer and the estimator.
+                              X_train,  # Features
+                              y_train,  # Labels
+                              cv=10,
+                              method='predict',
+                              n_jobs=-1  # Use all available cores.
+                              )

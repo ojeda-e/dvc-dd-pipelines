@@ -12,8 +12,8 @@ from molvs import Standardizer as Std
 
 import yaml
 
-params = yaml.safe_load(open("params.yaml"))["featurize"]
-max_number = params["max_number"]
+#params = yaml.safe_load(open("params.yaml"))["featurize"]
+#max_number = params["max_number"]
 
 input = sys.argv[1]
 output = sys.argv[2]
@@ -77,6 +77,8 @@ def get_descriptors(smiles: pd.core.series.Series) -> pd.DataFrame:
 os.makedirs(os.path.join("data", "featurized"), exist_ok=True)
 
 data = pd.read_csv(input)
-smiles = data['smiles'][:max_number]
+smiles = data['smiles']
 df_featurize = get_descriptors(smiles)
-df_featurize.to_csv(f"{output}/featurized_data.csv")
+df_featurize.to_csv(f"{output}")
+print("Featurizing process completed!")
+print('The shape of the featurized dataframe is: ', df_featurize.shape)
