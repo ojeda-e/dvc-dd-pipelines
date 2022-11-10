@@ -1,0 +1,17 @@
+name: PyData-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - jupyter
+  - rise
+  - dvc-gs
+  - numpy==1.22.0
+  - pandas
+  - molvs
+  - rdkit
+  - pubchempy
+  - scikit-learn

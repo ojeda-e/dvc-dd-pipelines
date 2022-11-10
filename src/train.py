@@ -54,7 +54,7 @@ def get_report(train, prediction):
 
 
 df = pd.read_csv(input)
-labels = pd.read_csv("./data/initial_data.csv")["class"][:max_number]
+labels = pd.read_csv("./data/initial_data.csv")["label"][:max_number]
 X_train, X_test, y_train, y_test = train_test_split(df,  # Filtered Descriptors
                                                     labels,  # Vector containing each compound's class
                                                     test_size=split,

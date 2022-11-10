@@ -39,28 +39,27 @@ def get_descriptors(smiles: pd.core.series.Series) -> pd.DataFrame:
     descriptor_df: pd.DataFrame
         Pandas DataFrame with descriptors from standarized molecules.
     """
-    for k, smi in enumerate(smiles):  # Explain what is this loop for
+    for k, smi in enumerate(smiles):  
         mol = Chem.MolFromSmiles(smi)
         mol = Std().standardize(mol)
         descriptor_list = []
         desc_values = []
         blacklist = ['Ipc']
-        for i in dir(Descript):  # Explain what is this loop for
-            # Explain what is this for
-            i_alphanumeric = re.sub(r'[^A-Za-z0-9]', '0', i)
-            i_alphanumeric = i_alphanumeric  # To fulfill flake8 conventions
-            if i.startswith("_"):
+        for element in dir(Descript):  
+            i_alphanumeric = re.sub(r'[^A-Za-z0-9]', '0', element)
+            i_alphanumeric = i_alphanumeric 
+            if element.startswith("_"):
                 continue
-            elif i in blacklist:
+            elif element in blacklist:
                 continue
             else:
                 try:
-                    descriptor_list.append(i)
-                    exec("desc_values.append(Descript.%(i)s(mol))" % vars())
+                    descriptor_list.append(element)
+                    exec("desc_values.append(Descript.%(element)s(mol))" % vars())
                 except:
                     pass
                 if len(desc_values) < len(descriptor_list):
-                    descriptor_list.remove(i)
+                    descriptor_list.remove(element)
 
         if k == 0:
             descriptors_df = pd.DataFrame(desc_values).T

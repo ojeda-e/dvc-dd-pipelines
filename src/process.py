@@ -28,7 +28,6 @@ def remove_zeros(df, threshold: int):
         if N_zeroes > threshold:
             null_features.append(col)
 
-    print(f"Removing {len(null_features)} features.")
     df=df.drop(null_features, axis=1)
     return df
 
@@ -55,7 +54,6 @@ def filter_correlation(df, filter_by: float = 0.9):
         if (np.abs(corr_mx.loc[colx, newColumns]) < filter_by).all():
             newColumns.append(colx)
         else:
-            print(f"Removing column {colx}")
             df=df.drop(colx, axis=1)
     return df
 
